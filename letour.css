@@ -1,0 +1,16 @@
+@-webkit-keyframes pointerPulse {
+      0% {border-color: rgba(255, 255, 255, 0);}
+     30% {border-color: rgba(167, 194, 61, 0.5);}
+    100% {border-color: rgba(255, 255, 255, 0);}
+}
+
+#guidance-pointer {
+	position: absolute;
+	background-color: rgba(255, 255, 255, 0.2);
+	border: 10px solid rgba(255, 255, 255, 0.2);
+	-webkit-animation-name: pointerPulse;
+	-webkit-animation-duration: 2.5s;
+	-webkit-animation-timing-function: ease-in;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-animation-iteration-count: infinite;
+}
