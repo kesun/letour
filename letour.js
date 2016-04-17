@@ -28,18 +28,24 @@ var Guidance = {
     addGuide: function(guideObj) {
         var newGuide = $.extend({}, this.guideDefaultTemplate, guideObj);
         if (this.guides[newGuide.name]) {
-            console.log('name conflict');
+            throw new Error("A guide module with the same name already exists.")
         } else {
             this.guides[newGuide.name] = newGuide;
         }
     },
     enableGuide: function(guideName) {
-        /*
-        */
+        var guide = this.guides[guideName];
+        if (guide) {
+            guide.enabled = true;
+            // TODO
+        }
     },
     disableGuide: function(guideName) {
-        /*
-        */
+        var guide = this.guides[guideName];
+        if (guide) {
+            guide.enabled = false;
+            // TODO
+        }
     },
     enableAll: function() {
         /*
@@ -49,7 +55,37 @@ var Guidance = {
         /*
         */
     },
-    startGuide: function(guideName, restart=true) {
+    exportUserData: function() {
+        var ret = {};
+        $.each(this.guides, function(name, guide) {
+            ret[name] = {
+                enabled: guide.enabled,
+                stepIndex: guide.stepIndex,
+                completed: guide.completed
+            }
+        });
+        return ret;
+    },
+    importUserData: function(data, ignoreMissingModules) {
+        $.each(data, function(name, config) {
+            var guide = this.guides[name];
+            if (guide) {
+                $.each(config, function(key, val) {
+                    var curConfig = guide[key];
+                    if (curConfig === undefined) {
+                        throw new Error ('Cannot locate guide module setting: ' + key);
+                    } else {
+                        guide[key] = val;
+                    }
+                });
+            } else if (ignoreMissingModules) {
+                // What do? Hmm...
+            } else {
+                throw new Error('Failed to import user data for guide: ' + name);
+            }
+        });
+    },
+    startGuide: function(guideName, cont) {
         /*
         */
         var self = this,
@@ -63,7 +99,8 @@ var Guidance = {
         }
         curGuide = this.activeGuide;
         if (curGuide && curGuide.enabled) {
-            if (restart) {
+            // If cont is not set or is set to false, reset the guide
+            if (!cont) {
                 curGuide.completed = false;
                 curGuide.stepIndex = 0;
             }
@@ -152,67 +189,3 @@ var Guidance = {
         });
     }
 };
-var myGuide = {
-        name: 'blah',
-        intro: "Welcome! Click the bubble to start whenever you are ready.",
-        outro: "Thanks!",
-        steps: [
-            {
-                selector: '#mainNavGallery',
-                message: 'Please click here to open gallery.',
-                delay: 0
-            },{
-                selector: '#subNavThreeDim',
-                message: 'Now click here to see some 3D stuff!',
-                delay: 1000
-            },{
-                selector: '#gallery3dFrame iframe',
-                message: 'Lastly, click to enjoy!',
-                delay: 1000
-            }
-        ]
-    },
-    step2Guide = {
-        name: 'step2Guide',
-        intro: 'Waaaah, click the fancy blob to wing the tutorial!',
-        outro: 'TA-DAA!',
-        steps: [
-            {
-                selector: '.main-add-question-cta',
-                message: 'This button looks magical.',
-                delay: 500
-            },{
-                selector: '#question-field-temp',
-                message: 'Here\'s the editor where you can enter a survey question, modify questions options, etc etc...But first, let\'s take a look at this QBQ thingy.',
-                delay: 1000
-            },{
-                selector: '#question-field-temp [data-tab-panel=edit] .buttons .cancel',
-                message: 'Let\'s close this first since we ain\'t using it.',
-                delay: 200
-            },{
-                selector: '#createAccordion #accQuestionBank .press',
-                message: 'Click here to open the QBQ tab. DO EET. I dare you.',
-                delay: 200
-            },{
-                selector: '#qbc [data-cid=59] a',
-                message: 'Community pl0x.',
-                delay: 200
-            },{
-                selector: '#question-bank-results .qBq .qb-li:first-child .qb-a',
-                message: 'This looks good. JUST CLICK IT.',
-                delay: 1500
-            },{
-                selector: '#editQuestion [data-tab-panel=edit] .buttons .save',
-                message: 'Fabulous. Save.',
-                delay: 3500
-            },{
-                selector: '#createAccordion #accThemes .press',
-                message: 'Kk, now onto themes.',
-                delay: 200
-            },{
-                selector: '#defaultThemeList [data-theme-list-item] [data-themeid=936540]',
-                message: 'This one looks fancy, let\'s pick it.',
-                delay: 200
-            }
-        ]
-    }
